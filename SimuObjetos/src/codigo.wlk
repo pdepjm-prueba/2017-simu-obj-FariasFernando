@@ -9,7 +9,7 @@ class Empleado{
 			rol=_rol
 		}
 		method ejecutar(tarea){
-			if(tarea.puedeSerRealizada(self))
+			if(tarea.puedeSerRealizada(self) or rol.puedeRealizar(tarea,self))
 			tarea.realizar(self)
 			else
 			throw new Exception("La tarea no puede ser realizada")
@@ -42,6 +42,7 @@ class Rol{
 	method fuerza()=0
 	method esSoldado()=false
 	method herramientas()=[]
+	method puedeRealizar(tarea,empleado)=false
 }
 
 class Soldado inherits Rol{
@@ -69,6 +70,15 @@ class Mucama inherits Rol{
 
 class Capataz inherits Rol{
 	var empleadosACargo=[]
+	method compararDosEmpleados(emp1,emp2)=if(emp1.experiencia()>emp2.experiencia())emp1 else emp2
+	method empleadoMasExperimentado()=empleadosACargo.filter({emp=>})
+	method agregarEmpleado(empleado){empleadosACargo.add(empleado)}
+	method puedeRealizarSubordinado(tarea)=empleadosACargo.any({empl=>tarea.puedeSerRealizada(empl)})
+	override method puedeRealizar(tarea,empleado)=self.puedeRealizarSubordinado(tarea) or tarea.puedeSerRealizada(empleado)
+	method realizar(tarea,empleado){
+		if(self.puedeRealizarSubordinado(tarea))
+		self.empleadoMasExperimentado().ejecutar(tarea)
+	}
 	
 }
 
@@ -83,6 +93,11 @@ class Maquina{
 	method complejidad()=complejidad
 }
 
+
+class Tarea{
+	method formaParticular(empleado)
+	method puedeSerRealizada(empleado)=self.formaParticular(empleado) or empleado.rol().puedeRealizar(self)
+}
 
 class ArreglarMaquina{
 	var maquina
